@@ -15,20 +15,27 @@ export default class ReleasesFetch extends Command {
 
   static args = []
 
-  print_release_info(release : any) {
+  print_release_info(release: any) {
     this.log(`${release.version} - ${release.created_at} - ${release.id} - ${release.user.email}`)
   }
 
   async run() {
     const {flags} = this.parse(ReleasesFetch)
 
-    const response = await this.heroku.get<Heroku.Release>(`/apps/${flags.app}/releases`)
-    const body = response.body
+    try {
+      const response = await this.heroku.get<Heroku.Release>(`/apps/${flags.app}/releases`)
+      const body = response.body
 
-    this.log(`Release info for ${flags.app}`)
+      this.log(`Release info for ${flags.app}`)
 
-    for (let release of body.reverse()) {
-      this.print_release_info(release)
+      for (let release of body.reverse()) {
+        this.print_release_info(release)
+      }
+    } catch (e) {
+      if (e.http.statusCode === 403) {
+        this.log(e.body.message)
+        return
+      }
     }
   }
 }
