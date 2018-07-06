@@ -5,17 +5,16 @@ export default class ReleasesFetch extends Command {
   static description = 'fetch the releases for an app and print some info'
 
   static examples = [
-    '$ oclif-example releases:fetch'
+    '$ heroku releases:fetch --app app-name'
   ]
 
+  // TODO(ftcjeff) - allow for limits/paging
   static flags = {
-    // flag with a value (-a, --app=VALUE)
-    app: flags.string({char: 'a', description: 'application to query', required: true}),
+    app: flags.string({char: 'a', description: 'application to query', required: true})
   }
 
-  static args = []
-
-  print_release_info(release: any) {
+  private print_release_info(release: any) {
+    // TODO(ftcjeff) - make this pretty, allow JSON output
     this.log(`${release.version} - ${release.created_at} - ${release.id} - ${release.user.email}`)
   }
 
@@ -32,10 +31,8 @@ export default class ReleasesFetch extends Command {
         this.print_release_info(release)
       }
     } catch (e) {
-      if (e.http.statusCode === 403) {
-        this.log(e.body.message)
-        return
-      }
+      this.log(`${e.http.statusCode} - ${e.body.message}`)
+      return
     }
   }
 }
