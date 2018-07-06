@@ -5,6 +5,7 @@
   "author": "Jeffrey J. Walls @ftcjeff",
   "bugs": "https://github.com/ftcjeff/heroku-release-viewer/issues",
   "dependencies": {
+    "@heroku-cli/command": "^8.1.26",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "tslib": "^1"
