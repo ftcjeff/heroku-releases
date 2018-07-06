@@ -123,6 +123,10 @@
     netrc-parser "^3.1.5"
     opn "^5.3.0"
 
+"@heroku-cli/schema@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@heroku-cli/schema/-/schema-1.0.8.tgz#8865734282a76b42318e36cc7981ff09a67cb4ba"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"

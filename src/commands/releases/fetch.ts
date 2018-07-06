@@ -1,4 +1,5 @@
 import {Command, flags} from '@heroku-cli/command'
+import * as Heroku from '@heroku-cli/schema'
 
 export default class ReleasesFetch extends Command {
   static description = 'fetch the releases for an app and print some info'
@@ -14,9 +15,20 @@ export default class ReleasesFetch extends Command {
 
   static args = []
 
-  async run() {
-    const {args, flags} = this.parse(ReleasesFetch)
+  print_release_info(release : any) {
+    this.log(`${release.version} - ${release.created_at} - ${release.id} - ${release.user.email}`)
+  }
 
-    this.log(`using app ${flags.app}`)
+  async run() {
+    const {flags} = this.parse(ReleasesFetch)
+
+    const response = await this.heroku.get<Heroku.Release>(`/apps/${flags.app}/releases`)
+    const body = response.body
+
+    this.log(`Release info for ${flags.app}`)
+
+    for (let release of body.reverse()) {
+      this.print_release_info(release)
+    }
   }
 }
