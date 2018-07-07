@@ -8,20 +8,11 @@ export default class ReleasesFetch extends Command {
     '$ heroku releases:fetch --app app-name'
   ]
 
-  // TODO(ftcjeff) - allow for limits/paging
   static flags = {
     app: flags.string({char: 'a', description: 'application to query', required: true}),
-    'slug-size': flags.boolean({char: 's', description: 'include the slug size in the output'})
-  }
-
-  private print_release_info(release: any, slug_size: int) {
-    // TODO(ftcjeff) - make this pretty, allow JSON output
-    let slug_log = ''
-    if (slug_size !== -1) {
-      slug_log = `- ${slug_size}`
-    }
-
-    this.log(`${release.version} - ${release.created_at} - ${release.id} - ${release.user.email} ${slug_log}`)
+    'slug-size': flags.boolean({char: 's', description: 'include the slug size in the output'}),
+    skip: flags.integer({char: 'k', description: 'the number of elements to skip before printing'}),
+    limit: flags.integer({char: 'l', description: 'the max number of elements to show'})
   }
 
   async run() {
@@ -33,19 +24,40 @@ export default class ReleasesFetch extends Command {
 
       this.log(`Release info for ${flags.app}`)
 
-      for (let release of body.reverse()) {
+      let elements = body.reverse()
+      if (flags.skip) {
+        elements = elements.slice(flags.skip)
+      }
+
+      if (flags.limit) {
+        elements = elements.slice(0, flags.limit)
+      }
+
+      for (let release of elements) {
         let slug_size = -1
         if (flags['slug-size']) {
-          const slug_response = await this.heroku.get<Heroku.Release>(`/apps/${flags.app}/slugs/${release.slug.id}`)
-          const slug_body = slug_response.body
-          slug_size = slug_body.size
+          if (release.slug) {
+            const slug_response = await this.heroku.get<Heroku.Release>(`/apps/${flags.app}/slugs/${release.slug.id}`)
+            const slug_body = slug_response.body
+            slug_size = slug_body.size
+          }
         }
 
         this.print_release_info(release, slug_size)
       }
     } catch (e) {
-      this.log(`${e.http.statusCode} - ${e.body.message}`)
-      return
+       this.log(`${e.http.statusCode} - ${e.body.message}`)
+       return
     }
+  }
+
+  private print_release_info(release: any, slug_size: number) {
+    // TODO(ftcjeff) - make this pretty, allow JSON output
+    let slug_log = ''
+    if (slug_size !== -1) {
+      slug_log = ` - ${slug_size}`
+    }
+
+    this.log(`${release.version} - ${release.created_at} - ${release.id} - ${release.user.email}${slug_log}`)
   }
 }
